@@ -194,7 +194,7 @@ export default function DevAccountCenter() {
             <div
               key={demoUser.id}
               style={{
-                background: 'var(--color-bg-card, #FFFFFF)',
+                background: 'var(--color-surface)',
                 border: isCurrent ? `2px solid ${meta.color}` : '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-lg)',
                 padding: '1.5rem',
@@ -266,7 +266,7 @@ export default function DevAccountCenter() {
                 </p>
 
                 <div style={{
-                  background: 'var(--color-bg-secondary, #F8FAFC)',
+                  background: 'var(--color-surface-alt)',
                   borderRadius: 'var(--radius-sm)',
                   padding: '0.625rem 0.75rem',
                   fontSize: '0.75rem',
@@ -287,7 +287,7 @@ export default function DevAccountCenter() {
                     padding: '0.625rem 1rem',
                     borderRadius: 'var(--radius-md)',
                     border: 'none',
-                    background: isCurrent ? 'var(--color-bg-secondary, #F1F5F9)' : meta.color,
+                    background: isCurrent ? 'var(--color-surface-alt)' : meta.color,
                     color: isCurrent ? 'var(--color-text-primary)' : '#FFFFFF',
                     fontWeight: 600,
                     fontSize: '0.875rem',

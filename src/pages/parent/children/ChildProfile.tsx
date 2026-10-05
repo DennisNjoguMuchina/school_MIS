@@ -1,14 +1,25 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Award, BookOpen, Calendar, Clock, ArrowLeft, Brain, Wrench } from 'lucide-react';
+import { ArrowLeft, Brain } from 'lucide-react';
 import { STUDENTS } from '../../../mock/students';
 import { BRIAN_PERFORMANCE, BRIAN_MATH_TREND } from '../../../mock/performance';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { PerformanceBar, StatusBadge } from '../../../components/common/index';
+import { PerformanceBar } from '../../../components/common/index';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function ChildProfile() {
   const navigate = useNavigate();
-  const student = STUDENTS.find(s => s.id === 'stu-001') || STUDENTS[0];
+  const { user } = useAuth();
+
+  // Derive authorized children from the authenticated parent's relationship.
+  // user.parentChildIds is set in the demo user record.
+  // In Phase 4, this will be enforced by the backend parent_student relationship.
+  const authorizedChildIds: string[] = user?.parentChildIds ?? [];
+
+  // Default to the first authorized child for display.
+  const student =
+    STUDENTS.find(s => authorizedChildIds.includes(s.id) && s.id === 'stu-001') ??
+    STUDENTS.find(s => authorizedChildIds.includes(s.id)) ??
+    STUDENTS[0];
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -21,7 +32,8 @@ export default function ChildProfile() {
             {student.firstName} {student.lastName} — Academic Profile
           </h1>
           <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-            Admission: {student.admissionNumber} · Grade 6 East
+            {/* studentNumber is the canonical field on the Student type */}
+            Admission: {student.studentNumber} · Grade 6 East
           </div>
         </div>
       </div>

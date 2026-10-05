@@ -69,13 +69,25 @@ export default function OCRReview() {
           </div>
         </div>
 
-        <button
-          onClick={handleCommit}
-          className="btn btn-primary"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}
-        >
-          <CheckCircle2 size={16} /> {committed ? 'Committed!' : 'Approve & Commit All Marks'}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem' }}>
+          {flaggedCount > 0 && (
+            <span style={{ fontSize: '0.75rem', color: '#92400E', fontWeight: 600 }}>
+              ⚠ Resolve {flaggedCount} flagged {flaggedCount === 1 ? 'row' : 'rows'} before finalizing
+            </span>
+          )}
+          <button
+            onClick={handleCommit}
+            disabled={flaggedCount > 0 || committed}
+            className="btn btn-primary"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.375rem',
+              opacity: flaggedCount > 0 ? 0.5 : 1,
+              cursor: flaggedCount > 0 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            <CheckCircle2 size={16} /> {committed ? 'Committed!' : 'Approve & Commit All Marks'}
+          </button>
+        </div>
       </div>
 
       {/* Flagged Alert Banner */}

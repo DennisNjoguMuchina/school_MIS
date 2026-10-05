@@ -13,14 +13,34 @@ export default function ParentDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Mary Mwangi's children: Brian (stu-001) & Grace (stu-013)
-  const [selectedChildId, setSelectedChildId] = useState<string>('stu-001');
+  // Derive authorized children from the authenticated parent's relationship data.
+  // user.parentChildIds is set in the demo user record for the parent persona.
+  // In Phase 4 this will come from a backend-enforced parent_student relationship.
+  const authorizedChildIds: string[] = user?.parentChildIds ?? [];
 
-  const brian = STUDENTS.find(s => s.id === 'stu-001');
-  const grace = STUDENTS.find(s => s.id === 'stu-013');
+  // Default to first authorized child. The selection is always validated against
+  // the authorized list — an ID outside the list cannot be set.
+  const [selectedChildId, setSelectedChildId] = useState<string>(
+    authorizedChildIds[0] ?? ''
+  );
 
-  const activeStudent = selectedChildId === 'stu-001' ? brian : grace;
-  const activePerf = selectedChildId === 'stu-001' ? BRIAN_PERFORMANCE : GRACE_PERFORMANCE;
+  // Only look up students whose IDs are in the authorized list.
+  const authorizedChildren = STUDENTS.filter(s => authorizedChildIds.includes(s.id));
+
+  // Guard: if selected ID drifts outside authorized list, reset to first.
+  const safeSelectedId = authorizedChildIds.includes(selectedChildId)
+    ? selectedChildId
+    : (authorizedChildIds[0] ?? '');
+
+  const handleSelectChild = (id: string) => {
+    // Reject selections outside the authorized list.
+    if (!authorizedChildIds.includes(id)) return;
+    setSelectedChildId(id);
+  };
+
+  const activeStudent = authorizedChildren.find(s => s.id === safeSelectedId);
+  const activePerf = safeSelectedId === 'stu-001' ? BRIAN_PERFORMANCE : GRACE_PERFORMANCE;
+
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -58,77 +78,60 @@ export default function ParentDashboard() {
         </button>
       </div>
 
-      {/* Child Switcher Cards */}
+      {/* Child Switcher Cards — rendered from authenticated parent's authorized children only */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-        <div
-          onClick={() => setSelectedChildId('stu-001')}
-          className="card"
-          style={{
-            padding: '1.25rem',
-            cursor: 'pointer',
-            border: selectedChildId === 'stu-001' ? '2px solid #F59E0B' : '1px solid var(--color-border)',
-            background: selectedChildId === 'stu-001' ? '#FFFBEB' : 'var(--color-bg-card)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: '50%', background: '#FDE68A', color: '#92400E',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.125rem'
-            }}>
-              BM
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--color-text-primary)' }}>
-                Brian Mwangi
-              </div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                Grade 6 East · ADM-2020-001
-              </div>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#B45309' }}>61.5%</div>
-            <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>Recovering</span>
-          </div>
-        </div>
+        {authorizedChildren.map(child => {
+          const initials = `${child.firstName[0]}${child.lastName[0]}`;
+          const isSelected = safeSelectedId === child.id;
+          // Grade/stream labels derived from enrolment IDs (mock-compatible)
+          const gradeLabel =
+            child.id === 'stu-001' ? 'Grade 6 East' :
+            child.id === 'stu-013' ? 'Grade 3A' :    // corrected: enr-013 → grade-3, stream-3a
+            'See enrolment';
+          const overallPct =
+            child.id === 'stu-001' ? '61.5%' :
+            child.id === 'stu-013' ? '78.5%' : '—';
+          const statusLabel =
+            child.id === 'stu-001' ? 'Recovering' : 'Strong';
 
-        <div
-          onClick={() => setSelectedChildId('stu-013')}
-          className="card"
-          style={{
-            padding: '1.25rem',
-            cursor: 'pointer',
-            border: selectedChildId === 'stu-013' ? '2px solid #F59E0B' : '1px solid var(--color-border)',
-            background: selectedChildId === 'stu-013' ? '#FFFBEB' : 'var(--color-bg-card)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: '50%', background: '#FDE68A', color: '#92400E',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.125rem'
-            }}>
-              GM
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--color-text-primary)' }}>
-                Grace Mwangi
+          return (
+            <div
+              key={child.id}
+              onClick={() => handleSelectChild(child.id)}
+              className="card"
+              style={{
+                padding: '1.25rem',
+                cursor: 'pointer',
+                border: isSelected ? '2px solid #F59E0B' : '1px solid var(--color-border)',
+                background: isSelected ? '#FFFBEB' : 'var(--color-surface)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: '50%', background: '#FDE68A', color: '#92400E',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.125rem'
+                }}>
+                  {initials}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--color-text-primary)' }}>
+                    {child.firstName} {child.lastName}
+                  </div>
+                  <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                    {gradeLabel} · {child.studentNumber}
+                  </div>
+                </div>
               </div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                Grade 4 West · ADM-2022-014
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#B45309' }}>{overallPct}</div>
+                <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>{statusLabel}</span>
               </div>
             </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#B45309' }}>78.5%</div>
-            <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>Strong</span>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Selected Child Progress Overview */}
@@ -165,7 +168,7 @@ export default function ParentDashboard() {
           icon={<Sparkles size={22} />}
           iconBg="#FAF5FF"
           iconColor="#9333EA"
-          context={selectedChildId === 'stu-001' ? 'Fractions Group (+26 pp uplift)' : 'Fully on track'}
+          context={safeSelectedId === 'stu-001' ? 'Fractions Group (+26 pp uplift)' : 'Fully on track'}
         />
       </div>
 
@@ -227,7 +230,7 @@ export default function ParentDashboard() {
             <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Teacher Remarks</h3>
           </div>
           <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            {selectedChildId === 'stu-001' ? (
+            {safeSelectedId === 'stu-001' ? (
               <>&ldquo;Brian has shown remarkable dedication in Mathematics this term. The small group sessions on visual fractions helped him jump from 38% to 64%. We encourage daily 15-minute home review on decimals.&rdquo;</>
             ) : (
               <>&ldquo;Grace continues to be an exemplary student with top marks in languages and arts. She participates enthusiastically in class discussions.&rdquo;</>
@@ -244,7 +247,7 @@ export default function ParentDashboard() {
             <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Parent AI Recommendations</h3>
           </div>
           <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-            {selectedChildId === 'stu-001'
+            {safeSelectedId === 'stu-001'
               ? 'Brian is working on decimals. Practice real-world shopping math: calculating change and comparing prices in the kitchen or supermarket.'
               : 'Encourage Grace to read longer English chapter books to expand her descriptive writing vocabulary.'}
           </p>

@@ -8,10 +8,17 @@ import { STUDENTS } from '../../mock/students';
 import { BRIAN_PERFORMANCE, BRIAN_MATH_TREND } from '../../mock/performance';
 import { MetricCard, PerformanceBar } from '../../components/common/index';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { useAuth } from '../../context/AuthContext';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
-  const student = STUDENTS.find(s => s.id === 'stu-001') || STUDENTS[0];
+  const { user } = useAuth();
+
+  // Student identity is derived from the authenticated user's studentId relationship.
+  // user.studentId is set in the demo user record for the student persona.
+  // In Phase 4, this will come from the backend JWT claims / session.
+  const studentId = user?.studentId ?? null;
+  const student = (studentId ? STUDENTS.find(s => s.id === studentId) : null) ?? STUDENTS[0];
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

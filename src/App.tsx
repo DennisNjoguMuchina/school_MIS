@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { AppShell, RequireAuth, RoleRedirect } from './layouts/AppShell';
+import { AppShell, RequireAuth, RequireRole, RoleRedirect } from './layouts/AppShell';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -63,70 +63,72 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route index element={<RoleRedirect />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/school" element={<SchoolDetailsPage />} />
-            <Route path="/admin/students" element={<StudentsPage />} />
-            <Route path="/admin/students/:id" element={<StudentProfile />} />
-            <Route path="/admin/teachers" element={<TeachersPage />} />
-            <Route path="/admin/teachers/:id" element={<TeacherProfile />} />
-            <Route path="/admin/parents" element={<ParentsPage />} />
-            <Route path="/admin/management-users" element={<TeachersPage />} />
-            <Route path="/admin/academic-years" element={<AcademicStructurePage initialTab="years" />} />
-            <Route path="/admin/terms" element={<AcademicStructurePage initialTab="terms" />} />
-            <Route path="/admin/grades" element={<AcademicStructurePage initialTab="grades" />} />
-            <Route path="/admin/streams" element={<AcademicStructurePage initialTab="streams" />} />
-            <Route path="/admin/subjects" element={<AcademicStructurePage initialTab="subjects" />} />
-            <Route path="/admin/curriculum" element={<AcademicStructurePage initialTab="subjects" />} />
-            <Route path="/admin/assignments" element={<TeacherAssignmentsPage />} />
-            <Route path="/admin/admissions" element={<StudentMovementPage initialTab="admissions" />} />
-            <Route path="/admin/promotions" element={<StudentMovementPage initialTab="promotions" />} />
-            <Route path="/admin/transfers" element={<StudentMovementPage initialTab="transfers" />} />
-            <Route path="/admin/roles" element={<RolesPermissionsPage />} />
-            <Route path="/admin/audit-log" element={<AuditLogPage />} />
-            <Route path="/admin/settings" element={<SettingsPage />} />
+              {/* ── Admin Routes (admin only) ── */}
+            <Route path="/admin" element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />
+            <Route path="/admin/school" element={<RequireRole role="admin"><SchoolDetailsPage /></RequireRole>} />
+            <Route path="/admin/students" element={<RequireRole role="admin"><StudentsPage /></RequireRole>} />
+            <Route path="/admin/students/:id" element={<RequireRole role="admin"><StudentProfile /></RequireRole>} />
+            <Route path="/admin/teachers" element={<RequireRole role="admin"><TeachersPage /></RequireRole>} />
+            <Route path="/admin/teachers/:id" element={<RequireRole role="admin"><TeacherProfile /></RequireRole>} />
+            <Route path="/admin/parents" element={<RequireRole role="admin"><ParentsPage /></RequireRole>} />
+            <Route path="/admin/management-users" element={<RequireRole role="admin"><TeachersPage /></RequireRole>} />
+            <Route path="/admin/academic-years" element={<RequireRole role="admin"><AcademicStructurePage initialTab="years" /></RequireRole>} />
+            <Route path="/admin/terms" element={<RequireRole role="admin"><AcademicStructurePage initialTab="terms" /></RequireRole>} />
+            <Route path="/admin/grades" element={<RequireRole role="admin"><AcademicStructurePage initialTab="grades" /></RequireRole>} />
+            <Route path="/admin/streams" element={<RequireRole role="admin"><AcademicStructurePage initialTab="streams" /></RequireRole>} />
+            <Route path="/admin/subjects" element={<RequireRole role="admin"><AcademicStructurePage initialTab="subjects" /></RequireRole>} />
+            <Route path="/admin/curriculum" element={<RequireRole role="admin"><AcademicStructurePage initialTab="subjects" /></RequireRole>} />
+            <Route path="/admin/assignments" element={<RequireRole role="admin"><TeacherAssignmentsPage /></RequireRole>} />
+            <Route path="/admin/admissions" element={<RequireRole role="admin"><StudentMovementPage initialTab="admissions" /></RequireRole>} />
+            <Route path="/admin/promotions" element={<RequireRole role="admin"><StudentMovementPage initialTab="promotions" /></RequireRole>} />
+            <Route path="/admin/transfers" element={<RequireRole role="admin"><StudentMovementPage initialTab="transfers" /></RequireRole>} />
+            <Route path="/admin/roles" element={<RequireRole role="admin"><RolesPermissionsPage /></RequireRole>} />
+            <Route path="/admin/audit-log" element={<RequireRole role="admin"><AuditLogPage /></RequireRole>} />
+            <Route path="/admin/settings" element={<RequireRole role="admin"><SettingsPage /></RequireRole>} />
 
-            {/* Management Routes */}
-            <Route path="/management" element={<ManagementDashboard />} />
-            <Route path="/management/performance" element={<SchoolPerformance />} />
-            <Route path="/management/grades" element={<SchoolPerformance />} />
-            <Route path="/management/subjects" element={<SchoolPerformance />} />
-            <Route path="/management/gaps" element={<SchoolPerformance />} />
-            <Route path="/management/learners" element={<StudentsPage />} />
-            <Route path="/management/interventions" element={<InterventionsOverview />} />
-            <Route path="/management/whatif" element={<WhatIfAnalysis />} />
-            <Route path="/management/ai" element={<ManagementAIAssistant />} />
-            <Route path="/management/audit-log" element={<AuditLogPage />} />
+            {/* ── Management Routes (management only) ── */}
+            <Route path="/management" element={<RequireRole role="management"><ManagementDashboard /></RequireRole>} />
+            <Route path="/management/performance" element={<RequireRole role="management"><SchoolPerformance /></RequireRole>} />
+            <Route path="/management/grades" element={<RequireRole role="management"><SchoolPerformance /></RequireRole>} />
+            <Route path="/management/subjects" element={<RequireRole role="management"><SchoolPerformance /></RequireRole>} />
+            <Route path="/management/gaps" element={<RequireRole role="management"><SchoolPerformance /></RequireRole>} />
+            <Route path="/management/learners" element={<RequireRole role="management"><StudentsPage /></RequireRole>} />
+            <Route path="/management/interventions" element={<RequireRole role="management"><InterventionsOverview /></RequireRole>} />
+            <Route path="/management/whatif" element={<RequireRole role="management"><WhatIfAnalysis /></RequireRole>} />
+            <Route path="/management/ai" element={<RequireRole role="management"><ManagementAIAssistant /></RequireRole>} />
+            <Route path="/management/audit-log" element={<RequireRole role="management"><AuditLogPage /></RequireRole>} />
 
-            {/* Teacher Routes */}
-            <Route path="/teacher" element={<TeacherDashboard />} />
-            <Route path="/teacher/classes" element={<MyClasses />} />
-            <Route path="/teacher/learners" element={<MyLearners />} />
-            <Route path="/teacher/assessments" element={<AssessmentsPage />} />
-            <Route path="/teacher/enter-marks" element={<EnterMarks />} />
-            <Route path="/teacher/upload" element={<UploadMarksheet />} />
-            <Route path="/teacher/ocr-review" element={<OCRReview />} />
-            <Route path="/teacher/performance" element={<ClassPerformance />} />
-            <Route path="/teacher/interventions" element={<TeacherInterventions />} />
-            <Route path="/teacher/ai" element={<TeacherAIAssistant />} />
+            {/* ── Teacher Routes (teacher only) ── */}
+            <Route path="/teacher" element={<RequireRole role="teacher"><TeacherDashboard /></RequireRole>} />
+            <Route path="/teacher/classes" element={<RequireRole role="teacher"><MyClasses /></RequireRole>} />
+            <Route path="/teacher/learners" element={<RequireRole role="teacher"><MyLearners /></RequireRole>} />
+            <Route path="/teacher/assessments" element={<RequireRole role="teacher"><AssessmentsPage /></RequireRole>} />
+            <Route path="/teacher/enter-marks" element={<RequireRole role="teacher"><EnterMarks /></RequireRole>} />
+            <Route path="/teacher/upload" element={<RequireRole role="teacher"><UploadMarksheet /></RequireRole>} />
+            <Route path="/teacher/ocr-review" element={<RequireRole role="teacher"><OCRReview /></RequireRole>} />
+            <Route path="/teacher/performance" element={<RequireRole role="teacher"><ClassPerformance /></RequireRole>} />
+            <Route path="/teacher/interventions" element={<RequireRole role="teacher"><TeacherInterventions /></RequireRole>} />
+            <Route path="/teacher/ai" element={<RequireRole role="teacher"><TeacherAIAssistant /></RequireRole>} />
 
-            {/* Parent Routes */}
-            <Route path="/parent" element={<ParentDashboard />} />
-            <Route path="/parent/performance" element={<ChildProfile />} />
-            <Route path="/parent/subjects" element={<ChildProfile />} />
-            <Route path="/parent/attendance" element={<ChildProfile />} />
-            <Route path="/parent/feedback" element={<ParentDashboard />} />
-            <Route path="/parent/interventions" element={<ChildProfile />} />
-            <Route path="/parent/ai" element={<ParentAIAssistant />} />
+            {/* ── Parent Routes (parent only) ── */}
+            <Route path="/parent" element={<RequireRole role="parent"><ParentDashboard /></RequireRole>} />
+            <Route path="/parent/performance" element={<RequireRole role="parent"><ChildProfile /></RequireRole>} />
+            <Route path="/parent/subjects" element={<RequireRole role="parent"><ChildProfile /></RequireRole>} />
+            <Route path="/parent/attendance" element={<RequireRole role="parent"><ChildProfile /></RequireRole>} />
+            <Route path="/parent/feedback" element={<RequireRole role="parent"><ParentDashboard /></RequireRole>} />
+            <Route path="/parent/interventions" element={<RequireRole role="parent"><ChildProfile /></RequireRole>} />
+            <Route path="/parent/ai" element={<RequireRole role="parent"><ParentAIAssistant /></RequireRole>} />
 
-            {/* Student Routes */}
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/student/performance" element={<StudentDashboard />} />
-            <Route path="/student/subjects" element={<StudentDashboard />} />
-            <Route path="/student/ai" element={<StudentAIAssistant />} />
+            {/* ── Student Routes (student only) ── */}
+            <Route path="/student" element={<RequireRole role="student"><StudentDashboard /></RequireRole>} />
+            <Route path="/student/performance" element={<RequireRole role="student"><StudentDashboard /></RequireRole>} />
+            <Route path="/student/subjects" element={<RequireRole role="student"><StudentDashboard /></RequireRole>} />
+            <Route path="/student/ai" element={<RequireRole role="student"><StudentAIAssistant /></RequireRole>} />
 
-            {/* Dev Center (Only active during dev) */}
-            <Route path="/dev/accounts" element={<DevAccountCenter />} />
+            {/* ── Dev Account Center (development builds only — stripped by Vite in production) ── */}
+            {import.meta.env.DEV && (
+              <Route path="/dev/accounts" element={<RequireAuth><DevAccountCenter /></RequireAuth>} />
+            )}
           </Route>
 
           {/* Catch-all redirect */}
